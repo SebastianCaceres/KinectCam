@@ -1,4 +1,4 @@
-﻿#include <Shlobj.h>
+#include <Shlobj.h>
 #include "util.h"
 #include "KinectRGBCam.h"
 
@@ -64,7 +64,7 @@ HRESULT KinectRGBCam::CreateFirstConnected() {
         {
             // Create an event that will be signaled when color data is available
             m_hNextVideoFrameEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-            m_pNuiSensor->NuiCameraElevationSetAngle(20);
+            m_pNuiSensor->NuiCameraElevationSetAngle(0);
             // Open a color image stream to receive color frames
             hr = m_pNuiSensor->NuiImageStreamOpen(
                 NUI_IMAGE_TYPE_COLOR,
