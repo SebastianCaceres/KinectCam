@@ -1,4 +1,4 @@
-﻿# CMakeList.txt : CMake project for KinectInfraredCam, include source and define
+# CMakeList.txt : CMake project for KinectInfraredCam, include source and define
 # project specific logic here.
 #
 cmake_minimum_required (VERSION 3.8)
@@ -30,9 +30,9 @@ target_link_libraries(KinectInfraredCam ${KINECT_LIBRARIES} ${DIRECTSHOW_STRMIID
 target_link_libraries(KinectInfraredCam winmm debug ${DIRECTSHOW_BASECLASS_DIR}/strmbasd.lib optimized strmbase)
 set_target_properties(KinectInfraredCam PROPERTIES SUFFIX .ax COMPILE_FLAGS "/Zc:wchar_t-")
 
-# Simple scripts to enable/disable filter registration
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Reg.cmd" "%WINDIR%\\System32\\regsvr32.exe %~dp0\\KinectInfraredCam.ax")
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/UnReg.cmd" "%WINDIR%\\System32\\regsvr32.exe /u %~dp0\\KinectInfraredCam.ax")
+# Simple scripts to enable/disable filter registration with auto-elevation
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Reg.cmd" "@echo off\r\nnet session >nul 2>&1\r\nif %errorlevel% neq 0 (\r\n    echo Administrator permissions required. Requesting elevation...\r\n    powershell -Command \"Start-Process cmd -ArgumentList '/c \\\"\\\"%~f0\\\"\\\"' -Verb RunAs\"\r\n    exit /b\r\n)\r\n\"%WINDIR%\\System32\\regsvr32.exe\" \"%~dp0KinectInfraredCam.ax\"\r\n")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/UnReg.cmd" "@echo off\r\nnet session >nul 2>&1\r\nif %errorlevel% neq 0 (\r\n    echo Administrator permissions required. Requesting elevation...\r\n    powershell -Command \"Start-Process cmd -ArgumentList '/c \\\"\\\"%~f0\\\"\\\"' -Verb RunAs\"\r\n    exit /b\r\n)\r\n\"%WINDIR%\\System32\\regsvr32.exe\" /u \"%~dp0KinectInfraredCam.ax\"\r\n")
 
 # Specify files to be installed
 install(TARGETS KinectInfraredCam LIBRARY DESTINATION .)
