@@ -8,8 +8,19 @@ cmake_minimum_required (VERSION 3.8)
 project (KinectInfraredCam VERSION 0.0.1)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-find_package(Kinect 1.8 REQUIRED)
 find_package(DirectShow REQUIRED)
+
+# Libfreenect source files
+set(FREENECT_SOURCES
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/core.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/cameras.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/tilt.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/flags.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/loader.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/registration.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/usb_libusb10.c"
+    "${PROJECT_SOURCE_DIR}/deps/libfreenect/src/audio.c"
+)
 
 set(KinectInfraredCam_HEADERS
 	"KinectRGBCam.h"
@@ -19,14 +30,36 @@ set(KinectInfraredCam_SOURCES
     "KinectRGBCam.cpp"
 	KinectRGBCam.def # Module definition for exports
 	KinectVirtualCamera.cpp
-	Dll.cpp)
+	Dll.cpp
+	${FREENECT_SOURCES})
 
 # Add source to this project's executable.
 
 message("Found base classes ${DIRECTSHOW_BASECLASS_DIR}")
 add_library(KinectInfraredCam MODULE ${KinectInfraredCam_HEADERS} ${KinectInfraredCam_SOURCES})
-target_include_directories(KinectInfraredCam SYSTEM PRIVATE ${KINECT_INCLUDE_DIR} ${DIRECTSHOW_INCLUDE_DIRS})
-target_link_libraries(KinectInfraredCam ${KINECT_LIBRARIES} ${DIRECTSHOW_STRMIIDS_LIBRARY} legacy_stdio_definitions.lib)
+
+# Architecture-specific LibUSB directory
+if(CMAKE_CL_64)
+    set(LIBUSB_ARCH_DIR x64)
+else()
+    set(LIBUSB_ARCH_DIR x86)
+endif()
+
+target_include_directories(KinectInfraredCam SYSTEM PRIVATE 
+    ${PROJECT_SOURCE_DIR}/deps/libusb/include
+    ${PROJECT_SOURCE_DIR}/deps/libfreenect/include
+    ${PROJECT_SOURCE_DIR}/deps/libfreenect/src
+    ${DIRECTSHOW_INCLUDE_DIRS})
+
+target_link_directories(KinectInfraredCam PRIVATE
+    ${PROJECT_SOURCE_DIR}/deps/libusb/lib/${LIBUSB_ARCH_DIR}
+)
+
+target_link_libraries(KinectInfraredCam 
+    libusb-1.0
+    advapi32
+    ${DIRECTSHOW_STRMIIDS_LIBRARY} 
+    legacy_stdio_definitions.lib)
 target_link_libraries(KinectInfraredCam winmm debug ${DIRECTSHOW_BASECLASS_DIR}/strmbasd.lib optimized strmbase)
 set_target_properties(KinectInfraredCam PROPERTIES SUFFIX .ax COMPILE_FLAGS "/Zc:wchar_t-")
 

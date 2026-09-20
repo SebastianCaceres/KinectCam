@@ -1,141 +1,125 @@
-#include <Shlobj.h>
-#include "util.h"
 #include "KinectRGBCam.h"
+#include <chrono>
 
-bool g_flipImage = false;
+freenect_context* KinectRGBCam::m_fContext = nullptr;
+freenect_device* KinectRGBCam::m_fDevice = nullptr;
+std::thread KinectRGBCam::m_workerThread;
+std::atomic<bool> KinectRGBCam::m_running(false);
+std::mutex KinectRGBCam::m_frameMutex;
+BYTE KinectRGBCam::m_frontBuffer[640 * 480 * 4] = { 0 };
+bool KinectRGBCam::m_hasNewFrame = false;
 
-//KinectCam::KinectCam() : 
-//    m_hNextVideoFrameEvent(INVALID_HANDLE_VALUE),
-//    m_pVideoStreamHandle(INVALID_HANDLE_VALUE),
-//    m_pNuiSensor(NULL)
-//{}
+KinectRGBCam::KinectRGBCam()
+{
+}
 
-//KinectCam::~KinectCam() {
-//    KinectCam::Nui_UnInit();
-//}
+KinectRGBCam::~KinectRGBCam()
+{
+    Nui_UnInit();
+}
 
+void KinectRGBCam::VideoCallback(freenect_device* dev, void* video, uint32_t timestamp)
+{
+    uint8_t* src = (uint8_t*)video;
+    std::lock_guard<std::mutex> lock(m_frameMutex);
+    for (int i = 0; i < 640 * 480; ++i)
+    {
+        m_frontBuffer[i * 4 + 0] = src[i * 3 + 2]; // B
+        m_frontBuffer[i * 4 + 1] = src[i * 3 + 1]; // G
+        m_frontBuffer[i * 4 + 2] = src[i * 3 + 0]; // R
+        m_frontBuffer[i * 4 + 3] = 255;            // A
+    }
+    m_hasNewFrame = true;
+}
 
-INuiSensor* KinectRGBCam::m_pNuiSensor = nullptr;
-HANDLE KinectRGBCam::m_hNextVideoFrameEvent = INVALID_HANDLE_VALUE;
-HANDLE KinectRGBCam::m_pVideoStreamHandle = INVALID_HANDLE_VALUE;
+void KinectRGBCam::ThreadWorker()
+{
+    while (m_running)
+    {
+        timeval tv = { 0, 10000 }; // 10ms timeout
+        if (m_fContext)
+        {
+            freenect_process_events_timeout(m_fContext, &tv);
+        }
+        else
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+}
 
-HRESULT KinectRGBCam::CreateFirstConnected() {
-    if (m_pNuiSensor != nullptr) {
-        // Already initialized
+HRESULT KinectRGBCam::CreateFirstConnected()
+{
+    if (m_fDevice != nullptr)
+    {
         return S_OK;
     }
-    INuiSensor* pNuiSensor;
-    HRESULT hr;
 
-    int iSensorCount = 0;
-    hr = NuiGetSensorCount(&iSensorCount);
-    if (FAILED(hr))
-    {
-        return hr;
-    }
-
-    // Look at each Kinect sensor
-    for (int i = 0; i < iSensorCount; ++i)
-    {
-        // Create the sensor so we can check status, if we can't create it, move on to the next
-        hr = NuiCreateSensorByIndex(i, &pNuiSensor);
-        if (FAILED(hr))
-        {
-            continue;
-        }
-
-        // Get the status of the sensor, and if connected, then we can initialize it
-        hr = pNuiSensor->NuiStatus();
-        if (S_OK == hr)
-        {
-            m_pNuiSensor = pNuiSensor;
-            break;
-        }
-
-        // This sensor wasn't OK, so release it since we're not using it
-        pNuiSensor->Release();
-    }
-
-    if (nullptr != m_pNuiSensor)
-    {
-        // Initialize the Kinect and specify that we'll be using color
-        hr = m_pNuiSensor->NuiInitialize(NUI_INITIALIZE_FLAG_USES_COLOR);
-        if (SUCCEEDED(hr))
-        {
-            // Create an event that will be signaled when color data is available
-            m_hNextVideoFrameEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-            m_pNuiSensor->NuiCameraElevationSetAngle(0);
-            // Open a color image stream to receive color frames
-            hr = m_pNuiSensor->NuiImageStreamOpen(
-                NUI_IMAGE_TYPE_COLOR,
-                NUI_IMAGE_RESOLUTION_640x480,
-                0,
-                2,
-                m_hNextVideoFrameEvent,
-                &m_pVideoStreamHandle);
-        }
-    }
-
-    if (nullptr == m_pNuiSensor || FAILED(hr))
+    if (freenect_init(&m_fContext, NULL) < 0)
     {
         return E_FAIL;
     }
 
-    return hr;
+    // Select subdevices for camera and motor
+    freenect_select_subdevices(m_fContext, (freenect_device_flags)(FREENECT_DEVICE_MOTOR | FREENECT_DEVICE_CAMERA));
+
+    int count = freenect_num_devices(m_fContext);
+    if (count <= 0)
+    {
+        freenect_shutdown(m_fContext);
+        m_fContext = nullptr;
+        return E_FAIL;
+    }
+
+    if (freenect_open_device(m_fContext, &m_fDevice, 0) < 0)
+    {
+        freenect_shutdown(m_fContext);
+        m_fContext = nullptr;
+        return E_FAIL;
+    }
+
+    // Keep tilt level at 0 degrees
+    freenect_set_tilt_degs(m_fDevice, 0);
+
+    // Setup 640x480 RGB mode
+    freenect_set_video_mode(m_fDevice, freenect_find_video_mode(FREENECT_RESOLUTION_MEDIUM, FREENECT_VIDEO_RGB));
+    freenect_set_video_callback(m_fDevice, VideoCallback);
+    freenect_start_video(m_fDevice);
+
+    m_running = true;
+    m_workerThread = std::thread(ThreadWorker);
+
+    return S_OK;
 }
 
-// TODO: fix bug where alt + f4 doesnt close camera
-// TODO: fix bug where setting elevation to 0 somehow fixes and causes a bug? (bug: ir camera doesnt get shut off, but it prevents weird shit from happening)
 void KinectRGBCam::Nui_UnInit()
 {
-    if (m_pNuiSensor)
+    if (m_running)
     {
-        m_pNuiSensor->NuiCameraElevationSetAngle(0);
-        m_pNuiSensor->NuiShutdown();
+        m_running = false;
+        if (m_workerThread.joinable())
+        {
+            m_workerThread.join();
+        }
     }
 
-    if (m_hNextVideoFrameEvent != INVALID_HANDLE_VALUE)
+    if (m_fDevice)
     {
-        CloseHandle(m_hNextVideoFrameEvent);
-        m_hNextVideoFrameEvent = INVALID_HANDLE_VALUE;
+        freenect_set_tilt_degs(m_fDevice, 0);
+        freenect_stop_video(m_fDevice);
+        freenect_close_device(m_fDevice);
+        m_fDevice = nullptr;
     }
-    SafeRelease(m_pNuiSensor);
+
+    if (m_fContext)
+    {
+        freenect_shutdown(m_fContext);
+        m_fContext = nullptr;
+    }
 }
-
 
 void KinectRGBCam::Nui_GetCamFrame(BYTE* frameBuffer, int frameSize)
 {
-    HRESULT hr;
-    NUI_IMAGE_FRAME imageFrame;
-
-    if (WAIT_OBJECT_0 != WaitForSingleObject(m_hNextVideoFrameEvent, 100))
-        return;
-
-    hr = m_pNuiSensor->NuiImageStreamGetNextFrame(
-        m_pVideoStreamHandle,
-        0,
-        &imageFrame);
-    if (FAILED(hr))
-    {
-        return;
-    }
-
-    INuiFrameTexture* pTexture = imageFrame.pFrameTexture;
-    NUI_LOCKED_RECT LockedRect;
-    pTexture->LockRect(0, &LockedRect, NULL, 0);
-    if (LockedRect.Pitch != 0)
-    {
-        BYTE* pBuffer = (BYTE*)LockedRect.pBits;
-        memcpy(frameBuffer, pBuffer, frameSize);
-    }
-    pTexture->UnlockRect(0);
-    m_pNuiSensor->NuiImageStreamReleaseFrame(m_pVideoStreamHandle, &imageFrame);
+    std::lock_guard<std::mutex> lock(m_frameMutex);
+    memcpy(frameBuffer, m_frontBuffer, frameSize);
 }
-
-//void KinectInfraredCam::StaticUnInit() {
-//    if (m_pNuiSensor) {
-//        m_pNuiSensor->NuiShutdown();
-//    }
-//    m_refCount = 0;
-//    SafeRelease(m_pNuiSensor);
-//}
