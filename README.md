@@ -1,32 +1,59 @@
-# Kinect 360 Virtual Camera.
-This little project is a revival of the Original [KinectCam](https://github.com/wildbillcat/KinectCam) which is a fork of [VCam](https://github.com/roman380/tmhare.mvps.org-vcam) that is archived by roman380.
+# Kinect 360 Virtual Camera (libfreenect + WinUSB Edition)
 
-*⚠️ This is just a personal project to make use of the Kinect v1 as a Camera and a tracking solution for my own needs, and has been made public incase other people would like to to use it.*
+A modernized 64-bit DirectShow virtual webcam filter for the Microsoft Xbox 360 Kinect (Kinect v1 / Model 1414).
 
-Though any help/fixing problems will be greatly appreciated, ty.
+This branch replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-source `libfreenect` + Microsoft `WinUSB` architecture. This allows the Kinect camera to function on modern 64-bit Windows 10 and Windows 11 systems without disabling Memory Integrity (HVCI) or installing obsolete 2013 kernel drivers.
 
-## Prerequisites
-- Kinect 1.8 SDK
-- Kinect SDK Developers Toolkit (for turning off the IR sensor properly)
+---
 
-## Issues
-- The IR Camera will not turn off on its own, you will have to run one of the kinect samples from the Developer Toolkit that uses the IR to turn it off.
-- There are times where the camera will not work/hangs the SDK Samples (to turn off the IR for example).
-  - fix: Unregistering and replugging then reregistering will usually do the trick.
-- Forcefully closing applications causes unintended behaviour, the fix here is the same as above.
-- Forecfully closing applications does not uninitialize the Camera properly, and doesnt return to its shutdown angle.
+> [!CAUTION]
+> ### ⚠️ EXPERIMENTAL & AI-ASSISTED PROJECT DISCLAIMER
+> 
+> * **Personal Test Project:** This is a personal test project created strictly for experimentation and hobbyist use.
+> * **AI-Assisted Development:** The modifications, driver abstraction layer, and scripts in this repository were largely developed and generated with the assistance of AI.
+> * **Install at Your Own Risk:** This software is provided **"as-is"**, without warranty of any kind, express or implied. The author assumes no responsibility or liability for any issues, system instability, or damages that may arise from using or installing this software.
+> * **No Support:** This project is not actively maintained, supported, or monitored for issues. No technical support or bug fixes are provided.
 
-## How to build
-- Have CMake 3.8.
-- Pick a branch you'd like to use and clone it on your machine.
-  - (NV12, RGB, RGB-RGBSENSOR) - Branches that dont specify what sensor its using means its using the IR sensor.
-- Build project.
+---
 
-## How to use (Run as admin)
-- *(Run Unregister.cmd incase you are registering a new branch, eg: NV12, RGB, RGB-RGBSENSOR)*
-- Run Register.cmd
+## What This Version Does
 
-# TODO (currently not a priority)
-- Create a config file for the shutdown/open angles.
-- Merge all the camera types together into one config so nobody needs to go through unregistering then registering to use other sensors.
-- Create releases for each branch so others dont have to build the binaries themselves (i cant be bothered rn)
+* **Driver Model:** Uses Microsoft's built-in `WinUSB` (`winusb.sys`) via `libfreenect` in user space.
+* **Modern Windows Security:** Fully compatible with Windows 11 Core Isolation / Memory Integrity (HVCI).
+* **DirectShow Output:** Exposes the Kinect RGB camera stream as a standard DirectShow video capture source (accessible in OBS Studio, browser webcams, Discord, etc.).
+* **Zero External SDKs Required:** No Microsoft Kinect for Windows SDK or developer toolkits are required.
+
+## Building from Source
+
+Requires Visual Studio 2022 (with C++ Desktop workload) and CMake 3.20+:
+
+```cmd
+cmake --preset x64-release
+cmake --build out/build/x64-release --config Release
+```
+
+The resulting 64-bit DirectShow filter will be located at:
+`out/build/x64-release/KinectInfraredCam.ax`
+
+## Building the Installer (.iss)
+
+If you have [Inno Setup 6](https://jrsoftware.org/isinfo.php) installed, you can compile the standalone setup installer:
+
+```cmd
+iscc installer.iss
+```
+*(Or open `installer.iss` in the Inno Setup Compiler GUI and click **Build -> Compile**).*
+
+The compiled installer will be generated at:
+`out/installer/KinectCam-Setup-x64.exe`
+
+## Manual Registration
+
+If running without the installer, you can register or unregister the filter manually from an elevated (Administrator) command prompt:
+
+* **Register:** Run `Reg.cmd`
+* **Unregister:** Run `UnReg.cmd`
+
+## License
+
+This project incorporates components licensed under the Apache 2.0 License, GPL v2 / Apache 2.0 (libfreenect), and LGPL v2.1 (libusb). See [LICENSE.txt](LICENSE.txt) for details.

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) [year] [fullname]
+Copyright (c) KinectCam Contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+==============================================================================
+Third-Party Software and Licenses
+==============================================================================
+
+This project incorporates or links to the following third-party software:
+
+1. OpenKinect libfreenect
+   - License: Apache License 2.0 / GPL v2 (Dual-licensed)
+   - Copyright (c) 2010-2015 OpenKinect Project (https://openkinect.org)
+   - Source: deps/libfreenect/
+
+2. libusb-1.0
+   - License: GNU Lesser General Public License (LGPL) v2.1
+   - Copyright (c) 2007-2008 Daniel Drake
+   - Copyright (c) 2001 Johannes Erdfelt
+   - Copyright (c) 2010 Peter Stuge
+   - Copyright (c) 2012-2013 Nathan Hjelm
+   - Source: deps/libusb/ (https://libusb.info)
+
+3. DirectShow BaseClasses
+   - License: Microsoft Limited Public License (MS-LPL) / Permissive Sample Code License
+   - Copyright (c) Microsoft Corporation
