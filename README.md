@@ -23,6 +23,12 @@ This project replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-s
 * **DirectShow Output:** Exposes the Kinect RGB camera stream as a standard DirectShow video capture source (accessible in OBS Studio, browser webcams, Discord, etc.).
 * **Zero External SDKs Required:** No Microsoft Kinect for Windows SDK or developer toolkits are required.
 
+## Requirements
+
+* **Operating System:** 64-bit Windows 10 or Windows 11 (compatible with Core Isolation / HVCI).
+* **Hardware:** Microsoft Xbox 360 Kinect Sensor (Model 1414) + 12V AC power adapter & USB cable.
+* **Driver Tool (Required):** [Zadig](https://zadig.akeo.ie) (standalone portable utility used to associate Microsoft's `WinUSB` driver with the sensor during first-time setup).
+
 ## First-Time Driver Setup: Why WinUSB & Zadig are Needed
 
 ### Why is this step necessary?

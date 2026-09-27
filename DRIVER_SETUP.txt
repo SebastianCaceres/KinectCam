@@ -1,0 +1,31 @@
+======================================================================
+  Kinect Virtual Camera - Required Driver Setup (Zadig)
+======================================================================
+
+IMPORTANT: FIRST-TIME SETUP REQUIREMENT
+---------------------------------------
+The Xbox 360 Kinect (Model 1414) does not use standard UVC webcam
+drivers. Modern Windows 10 and 11 require Microsoft's built-in
+WinUSB (winusb.sys) driver to communicate with the sensor securely.
+
+Before this virtual camera can stream video, you MUST associate
+WinUSB with the Kinect using the free, open-source Zadig utility.
+
+STEP-BY-STEP INSTRUCTIONS:
+-------------------------
+1. Plug your Kinect into 12V wall power and connect USB to your PC.
+2. Download Zadig from: https://zadig.akeo.ie
+   (If you leave the option checked on the final installer screen,
+   your browser will open this page automatically).
+3. Run Zadig, open the "Options" menu, and select "List All Devices".
+4. From the dropdown list, select:
+      "Xbox NUI Camera"  (USB ID: 045E 02AE)
+5. Ensure the target driver on the right is set to "WinUSB".
+6. Click "Replace Driver" (or "Install Driver").
+7. (Optional - for Tilt & LED control):
+   In the dropdown, select "Xbox NUI Motor" (USB ID: 045E 02B0)
+   and replace its driver with "WinUSB" as well.
+
+Once completed, the driver setup is permanent and plug-and-play!
+You can now open OBS Studio, Discord, or the Kinect Control Panel.
+======================================================================
