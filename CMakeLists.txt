@@ -72,7 +72,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Reg.cmd" "@echo off\r\nnet session >nul 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/UnReg.cmd" "@echo off\r\nnet session >nul 2>&1\r\nif %errorlevel% neq 0 (\r\n    echo Administrator permissions required. Requesting elevation...\r\n    powershell -Command \"Start-Process cmd -ArgumentList '/c \\\"\\\"%~f0\\\"\\\"' -Verb RunAs\"\r\n    exit /b\r\n)\r\n\"%WINDIR%\\System32\\regsvr32.exe\" /u \"%~dp0KinectInfraredCam.ax\"\r\n")
 
 # KinectCamControl executable (Win32 GUI app)
-add_executable(KinectCamControl WIN32 "KinectCamControl.cpp" ${FREENECT_SOURCES})
+add_executable(KinectCamControl WIN32 "KinectCamControl.cpp" "KinectCamControl.rc" ${FREENECT_SOURCES})
 target_include_directories(KinectCamControl SYSTEM PRIVATE
     ${PROJECT_SOURCE_DIR}/deps/libusb/include
     ${PROJECT_SOURCE_DIR}/deps/libfreenect/include

@@ -30,6 +30,7 @@
 
 #define TIMER_KEEP_ALIVE    1
 #define TIMER_RECONNECT     2
+#define IDI_APPICON         101
 
 static HINSTANCE g_hInstance = nullptr;
 static HWND g_hMainWnd = nullptr;
@@ -309,7 +310,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         g_nid.uID = 1;
         g_nid.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
         g_nid.uCallbackMessage = WM_TRAYICON;
-        g_nid.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_APPLICATION);
+        g_nid.hIcon = (HICON)LoadImageW(g_hInstance, MAKEINTRESOURCEW(IDI_APPICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+        if (!g_nid.hIcon) g_nid.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_APPLICATION);
         lstrcpyW(g_nid.szTip, L"Kinect Virtual Camera Control");
         Shell_NotifyIconW(NIM_ADD, &g_nid);
 
@@ -506,7 +508,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
     wc.cbSize = sizeof(WNDCLASSEXW);
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
-    wc.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_APPLICATION);
+    wc.hIcon = LoadIconW(hInstance, MAKEINTRESOURCEW(IDI_APPICON));
+    if (!wc.hIcon) wc.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_APPLICATION);
+    wc.hIconSm = (HICON)LoadImageW(hInstance, MAKEINTRESOURCEW(IDI_APPICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
     wc.hCursor = LoadCursorW(nullptr, (LPCWSTR)IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
     wc.lpszClassName = L"KinectCamControlWnd";

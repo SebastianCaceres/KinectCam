@@ -19,6 +19,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
 WizardStyle=modern
+SetupIconFile=assets\kinect.ico
+UninstallIconFile=assets\kinect.ico
 
 [Files]
 ; The 64-bit DirectShow Virtual Camera filter (registers automatically with regserver flag)
@@ -31,9 +33,15 @@ Source: "out\build\x64-release\UnReg.cmd"; DestDir: "{app}"
 ; Documentation
 Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 Source: "LICENSE.txt"; DestDir: "{app}"
+; Icon Asset
+Source: "assets\kinect.ico"; DestDir: "{app}\assets"
+
+[Tasks]
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Icons]
-Name: "{group}\Kinect Control Panel"; Filename: "{app}\KinectCamControl.exe"
+Name: "{group}\Kinect Control Panel"; Filename: "{app}\KinectCamControl.exe"; IconFilename: "{app}\assets\kinect.ico"
+Name: "{autodesktop}\Kinect Control Panel"; Filename: "{app}\KinectCamControl.exe"; IconFilename: "{app}\assets\kinect.ico"; Tasks: desktopicon
 Name: "{group}\Register Kinect Cam"; Filename: "{app}\Reg.cmd"
 Name: "{group}\Unregister Kinect Cam"; Filename: "{app}\UnReg.cmd"
 Name: "{group}\Uninstall Kinect Cam"; Filename: "{uninstallexe}"

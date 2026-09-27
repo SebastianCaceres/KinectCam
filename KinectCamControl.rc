@@ -1,0 +1,4 @@
+// Resource script for KinectCamControl
+#define IDI_APPICON 101
+
+IDI_APPICON ICON "assets/kinect.ico"
