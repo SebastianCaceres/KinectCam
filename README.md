@@ -23,6 +23,24 @@ This project replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-s
 * **DirectShow Output:** Exposes the Kinect RGB camera stream as a standard DirectShow video capture source (accessible in OBS Studio, browser webcams, Discord, etc.).
 * **Zero External SDKs Required:** No Microsoft Kinect for Windows SDK or developer toolkits are required.
 
+## First-Time Driver Setup: Why WinUSB & Zadig are Needed
+
+### Why is this step necessary?
+The Xbox 360 Kinect (Model 1414) was built in 2010 exclusively for the Xbox 360 console and does not use standard UVC webcam protocols.
+* The obsolete 2013 Microsoft Kinect SDK installed a proprietary kernel driver (`kinect10.sys`), which Windows 11 blocks as an unverified security risk under **Memory Integrity (HVCI)**.
+* This project runs completely in user space over Microsoft's built-in, secure **`WinUSB` (`winusb.sys`)** driver.
+* Because Windows does not automatically assign `winusb.sys` to the Xbox 360 Kinect by default, you use the free, open-source tool **Zadig** once to associate `WinUSB` with the sensor. Once completed, the Kinect is 100% plug-and-play on your PC.
+
+### Step-by-Step Zadig Guide (1-Time Setup)
+
+1. **Connect Hardware:** Plug the Kinect's 12V wall power supply into an outlet, and connect the USB cable to your PC.
+2. **Download Zadig:** Download the official portable tool from **[https://zadig.akeo.ie](https://zadig.akeo.ie)** (standalone, no installer needed).
+3. **Show All Devices:** Open Zadig, click the **Options** menu at the top, and select **List All Devices**.
+4. **Select Kinect Camera:** In the dropdown list, choose **`Xbox NUI Camera`** (USB ID `045E 02AE`).
+5. **Install WinUSB:** Verify the driver on the right side of the green arrow is set to **`WinUSB`**, then click **"Replace Driver"** (or *"Install Driver"*).
+6. *(Optional - for Tilt & LED Control)*: In the dropdown, also select **`Xbox NUI Motor`** (USB ID `045E 02B0`) and click **"Replace Driver"** to WinUSB.
+7. **Complete!** Launch OBS Studio or the Kinect Control Panel.
+
 ## Building from Source
 
 Requires Visual Studio 2022 (with C++ Desktop workload) and CMake 3.20+:

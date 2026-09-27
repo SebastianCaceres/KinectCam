@@ -42,12 +42,14 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Icons]
 Name: "{group}\Kinect Control Panel"; Filename: "{app}\KinectCamControl.exe"; IconFilename: "{app}\assets\kinect.ico"
 Name: "{autodesktop}\Kinect Control Panel"; Filename: "{app}\KinectCamControl.exe"; IconFilename: "{app}\assets\kinect.ico"; Tasks: desktopicon
+Name: "{group}\Driver Setup Guide (Zadig)"; Filename: "https://zadig.akeo.ie"
 Name: "{group}\Register Kinect Cam"; Filename: "{app}\Reg.cmd"
 Name: "{group}\Unregister Kinect Cam"; Filename: "{app}\UnReg.cmd"
 Name: "{group}\Uninstall Kinect Cam"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{app}\KinectCamControl.exe"; Description: "Launch Kinect Control Panel"; Flags: nowait postinstall skipifsilent
+Filename: "https://zadig.akeo.ie"; Description: "Open Zadig website (Required once if this is your first time connecting the Kinect)"; Flags: shellexec postinstall skipifsilent unchecked
 
 [UninstallRun]
 Filename: "taskkill.exe"; Parameters: "/f /im KinectCamControl.exe"; Flags: runhidden
