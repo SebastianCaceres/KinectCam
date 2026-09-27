@@ -64,6 +64,12 @@ If running without the installer, you can register or unregister the filter manu
 * **Register:** Run `Reg.cmd`
 * **Unregister:** Run `UnReg.cmd`
 
+## Acknowledgments & Credits
+
+* **[VisualError](https://github.com/VisualError/KinectCam):** Core credit to VisualError for the original KinectCam revival, CMake structure, and DirectShow filter foundation that made this project possible.
+* **[wildbillcat](https://github.com/wildbillcat/KinectCam) & [roman380](https://github.com/roman380/tmhare.mvps.org-vcam):** Early KinectCam and DirectShow VCam sample implementations.
+* **[OpenKinect](https://openkinect.org):** The `libfreenect` team for the open-source Kinect USB protocol reverse engineering and user-mode drivers.
+
 ## License
 
 This project incorporates components licensed under the Apache 2.0 License, GPL v2 / Apache 2.0 (libfreenect), and LGPL v2.1 (libusb). See [LICENSE.txt](LICENSE.txt) for details.
