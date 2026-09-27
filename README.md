@@ -2,7 +2,7 @@
 
 A modernized 64-bit DirectShow virtual webcam filter for the Microsoft Xbox 360 Kinect (Kinect v1 / Model 1414).
 
-This branch replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-source `libfreenect` + Microsoft `WinUSB` architecture. This allows the Kinect camera to function on modern 64-bit Windows 10 and Windows 11 systems without disabling Memory Integrity (HVCI) or installing obsolete 2013 kernel drivers.
+This project replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-source `libfreenect` + Microsoft `WinUSB` architecture. This allows the Kinect camera to function on modern 64-bit Windows 10 and Windows 11 systems without disabling Memory Integrity (HVCI) or installing obsolete 2013 kernel drivers.
 
 ---
 
@@ -32,8 +32,18 @@ cmake --preset x64-release
 cmake --build out/build/x64-release --config Release
 ```
 
-The resulting 64-bit DirectShow filter will be located at:
-`out/build/x64-release/KinectInfraredCam.ax`
+The resulting 64-bit binaries will be located at:
+* `out/build/x64-release/KinectInfraredCam.ax` (Virtual Camera DirectShow Filter)
+* `out/build/x64-release/KinectCamControl.exe` (Control Panel & System Tray Utility)
+
+## Kinect Control Panel Utility
+
+`KinectCamControl.exe` provides a lightweight native Windows interface to manage the sensor:
+* **Live Tilt Slider:** Adjust hardware angle (-27° to +27°) with instant response.
+* **Sensor Mode Selector:** Seamlessly switch between **RGB Color Camera** and **Infrared (Night Vision)** without re-registering filters.
+* **LED Control:** Choose between Off, Solid Green, Solid Red, Solid Yellow, or Blinking modes.
+* **Standby Blinking Fix:** Automatically silences the blinking green light when your PC is idle.
+* **System Tray:** Minimizes quietly to the system tray with a quick-access right-click menu.
 
 ## Building the Installer (.iss)
 
@@ -57,3 +67,7 @@ If running without the installer, you can register or unregister the filter manu
 ## License
 
 This project incorporates components licensed under the Apache 2.0 License, GPL v2 / Apache 2.0 (libfreenect), and LGPL v2.1 (libusb). See [LICENSE.txt](LICENSE.txt) for details.
+
+---
+
+> **Notice:** This project is an independent open-source tool and is not affiliated with, endorsed by, or sponsored by Microsoft Corporation. "Kinect" and "Xbox" are registered trademarks of Microsoft Corporation.

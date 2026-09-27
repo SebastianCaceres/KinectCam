@@ -8,6 +8,10 @@ cmake_minimum_required (VERSION 3.8)
 project (KinectInfraredCam VERSION 0.0.1)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 find_package(DirectShow REQUIRED)
 
 # Libfreenect source files
@@ -67,8 +71,26 @@ set_target_properties(KinectInfraredCam PROPERTIES SUFFIX .ax COMPILE_FLAGS "/Zc
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/Reg.cmd" "@echo off\r\nnet session >nul 2>&1\r\nif %errorlevel% neq 0 (\r\n    echo Administrator permissions required. Requesting elevation...\r\n    powershell -Command \"Start-Process cmd -ArgumentList '/c \\\"\\\"%~f0\\\"\\\"' -Verb RunAs\"\r\n    exit /b\r\n)\r\n\"%WINDIR%\\System32\\regsvr32.exe\" \"%~dp0KinectInfraredCam.ax\"\r\n")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/UnReg.cmd" "@echo off\r\nnet session >nul 2>&1\r\nif %errorlevel% neq 0 (\r\n    echo Administrator permissions required. Requesting elevation...\r\n    powershell -Command \"Start-Process cmd -ArgumentList '/c \\\"\\\"%~f0\\\"\\\"' -Verb RunAs\"\r\n    exit /b\r\n)\r\n\"%WINDIR%\\System32\\regsvr32.exe\" /u \"%~dp0KinectInfraredCam.ax\"\r\n")
 
+# KinectCamControl executable (Win32 GUI app)
+add_executable(KinectCamControl WIN32 "KinectCamControl.cpp" ${FREENECT_SOURCES})
+target_include_directories(KinectCamControl SYSTEM PRIVATE
+    ${PROJECT_SOURCE_DIR}/deps/libusb/include
+    ${PROJECT_SOURCE_DIR}/deps/libfreenect/include
+    ${PROJECT_SOURCE_DIR}/deps/libfreenect/src
+)
+target_link_directories(KinectCamControl PRIVATE
+    ${PROJECT_SOURCE_DIR}/deps/libusb/lib/${LIBUSB_ARCH_DIR}
+)
+target_link_libraries(KinectCamControl
+    libusb-1.0
+    advapi32
+    comctl32
+    shell32
+    legacy_stdio_definitions.lib
+)
+
 # Specify files to be installed
-install(TARGETS KinectInfraredCam LIBRARY DESTINATION .)
+install(TARGETS KinectInfraredCam KinectCamControl DESTINATION .)
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/Reg.cmd"
     "${CMAKE_CURRENT_BINARY_DIR}/UnReg.cmd"

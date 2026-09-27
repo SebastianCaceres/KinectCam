@@ -23,6 +23,8 @@ WizardStyle=modern
 [Files]
 ; The 64-bit DirectShow Virtual Camera filter (registers automatically with regserver flag)
 Source: "out\build\x64-release\KinectInfraredCam.ax"; DestDir: "{app}"; Flags: regserver restartreplace
+; Kinect Control Panel utility
+Source: "out\build\x64-release\KinectCamControl.exe"; DestDir: "{app}"; Flags: restartreplace
 ; Manual scripts for convenience
 Source: "out\build\x64-release\Reg.cmd"; DestDir: "{app}"
 Source: "out\build\x64-release\UnReg.cmd"; DestDir: "{app}"
@@ -31,9 +33,14 @@ Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 Source: "LICENSE.txt"; DestDir: "{app}"
 
 [Icons]
+Name: "{group}\Kinect Control Panel"; Filename: "{app}\KinectCamControl.exe"
 Name: "{group}\Register Kinect Cam"; Filename: "{app}\Reg.cmd"
 Name: "{group}\Unregister Kinect Cam"; Filename: "{app}\UnReg.cmd"
 Name: "{group}\Uninstall Kinect Cam"; Filename: "{uninstallexe}"
 
+[Run]
+Filename: "{app}\KinectCamControl.exe"; Description: "Launch Kinect Control Panel"; Flags: nowait postinstall skipifsilent
+
 [UninstallRun]
+Filename: "taskkill.exe"; Parameters: "/f /im KinectCamControl.exe"; Flags: runhidden
 Filename: "{sys}\regsvr32.exe"; Parameters: "/u /s ""{app}\KinectInfraredCam.ax"""; Flags: runhidden

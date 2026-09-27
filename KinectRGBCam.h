@@ -22,6 +22,7 @@ public:
 private:
     static void VideoCallback(freenect_device* dev, void* video, uint32_t timestamp);
     static void ThreadWorker();
+    static void SwitchVideoMode(int newMode);
 
     static freenect_context* m_fContext;
     static freenect_device* m_fDevice;
@@ -30,4 +31,5 @@ private:
     static std::mutex m_frameMutex;
     static BYTE m_frontBuffer[640 * 480 * 4];
     static bool m_hasNewFrame;
+    static int m_currentVideoMode;
 };
