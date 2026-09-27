@@ -1,8 +1,8 @@
-# Kinect 360 Virtual Camera (libfreenect + WinUSB Edition)
+# Kinect 360 Virtual Camera
 
-A modernized 64-bit DirectShow virtual webcam filter for the Microsoft Xbox 360 Kinect (Kinect v1 / Model 1414).
+A modernized 64-bit DirectShow virtual webcam filter and control panel utility for the Microsoft Xbox 360 Kinect (Kinect v1 / Model 1414).
 
-This project replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-source `libfreenect` + Microsoft `WinUSB` architecture. This allows the Kinect camera to function on modern 64-bit Windows 10 and Windows 11 systems without disabling Memory Integrity (HVCI) or installing obsolete 2013 kernel drivers.
+This project allows the Xbox 360 Kinect camera to function as a regular webcam on modern 64-bit Windows 10 and Windows 11 systems without disabling Memory Integrity (HVCI) or installing obsolete kernel drivers.
 
 ---
 
@@ -16,83 +16,95 @@ This project replaces the legacy Microsoft Kinect SDK 1.8 drivers with an open-s
 
 ---
 
-## What This Version Does
+## Features
 
-* **Driver Model:** Uses Microsoft's built-in `WinUSB` (`winusb.sys`) via `libfreenect` in user space.
-* **Modern Windows Security:** Fully compatible with Windows 11 Core Isolation / Memory Integrity (HVCI).
-* **DirectShow Output:** Exposes the Kinect RGB camera stream as a standard DirectShow video capture source (accessible in OBS Studio, browser webcams, Discord, etc.).
-* **Zero External SDKs Required:** No Microsoft Kinect for Windows SDK or developer toolkits are required.
+* **DirectShow Virtual Camera:** Streams Kinect video directly to OBS Studio, Discord, Google Meet, Zoom, and web browsers.
+* **RGB & Infrared (Night Vision):** Switch between full-color RGB and infrared night-vision video modes on the fly.
+* **Native Control Panel (`KinectCamControl.exe`):**
+  * **Live Motor Tilt:** Smooth hardware angle adjustment (-27° to +27°).
+  * **LED Control:** Solid Green, Solid Red, Solid Yellow, Blinking, or Off.
+  * **Standby Blinking Fix:** Automatically silences the blinking green light when idle.
+  * **System Tray:** Runs quietly in the notification area with quick right-click options.
+* **Modern Windows Security:** Runs entirely in user mode via Microsoft's built-in `WinUSB` driver—fully compatible with Windows 11 Core Isolation / Memory Integrity (HVCI).
+
+---
 
 ## Requirements
 
-* **Operating System:** 64-bit Windows 10 or Windows 11 (compatible with Core Isolation / HVCI).
-* **Hardware:** Microsoft Xbox 360 Kinect Sensor (Model 1414) + 12V AC power adapter & USB cable.
-* **Driver Tool (Required):** [Zadig](https://zadig.akeo.ie) (standalone portable utility used to associate Microsoft's `WinUSB` driver with the sensor during first-time setup).
+* **Operating System:** 64-bit Windows 10 or Windows 11.
+* **Hardware:** Microsoft Xbox 360 Kinect Sensor (Model 1414) + 12V AC power supply adapter & USB breakout cable.
+* **Driver Tool (Required for first-time setup):** [Zadig](https://zadig.akeo.ie) (Because the Kinect is not a standard UVC webcam, modern Windows requires associating it with Microsoft's built-in `WinUSB` driver once using Zadig).
 
-## First-Time Driver Setup: Why WinUSB & Zadig are Needed
+---
 
-### Why is this step necessary?
-The Xbox 360 Kinect (Model 1414) was built in 2010 exclusively for the Xbox 360 console and does not use standard UVC webcam protocols.
-* The obsolete 2013 Microsoft Kinect SDK installed a proprietary kernel driver (`kinect10.sys`), which Windows 11 blocks as an unverified security risk under **Memory Integrity (HVCI)**.
-* This project runs completely in user space over Microsoft's built-in, secure **`WinUSB` (`winusb.sys`)** driver.
-* Because Windows does not automatically assign `winusb.sys` to the Xbox 360 Kinect by default, you use the free, open-source tool **Zadig** once to associate `WinUSB` with the sensor. Once completed, the Kinect is 100% plug-and-play on your PC.
+## Installation Guide
 
-### Step-by-Step Zadig Guide (1-Time Setup)
+Follow these steps to set up your Kinect as a webcam:
 
-1. **Connect Hardware:** Plug the Kinect's 12V wall power supply into an outlet, and connect the USB cable to your PC.
-2. **Download Zadig:** Download the official portable tool from **[https://zadig.akeo.ie](https://zadig.akeo.ie)** (standalone, no installer needed).
-3. **Show All Devices:** Open Zadig, click the **Options** menu at the top, and select **List All Devices**.
-4. **Select Kinect Camera:** In the dropdown list, choose **`Xbox NUI Camera`** (USB ID `045E 02AE`).
-5. **Install WinUSB:** Verify the driver on the right side of the green arrow is set to **`WinUSB`**, then click **"Replace Driver"** (or *"Install Driver"*).
-6. *(Optional - for Tilt & LED Control)*: In the dropdown, also select **`Xbox NUI Motor`** (USB ID `045E 02B0`) and click **"Replace Driver"** to WinUSB.
-7. **Complete!** Launch OBS Studio or the Kinect Control Panel.
+### Step 1: Connect Hardware
+1. Plug the Kinect's 12V power supply into a wall outlet.
+2. Plug the USB cable into your PC (USB 2.0 or USB 3.0 port).
+3. The sensor's power LED will illuminate.
+
+### Step 2: Configure Driver with Zadig (One-Time Setup)
+1. Download and run **[Zadig](https://zadig.akeo.ie)** (free, portable, no installation required).
+2. Click the **Options** menu at the top and select **List All Devices**.
+3. In the device dropdown:
+   * Select **`Xbox NUI Camera`** (USB ID `045E 02AE`).
+   * Ensure the target driver (right side of the green arrow) is set to **`WinUSB`**.
+   * Click **"Replace Driver"** (or *"Install Driver"*).
+4. *(Optional - for motor tilt and LED controls)*:
+   * Select **`Xbox NUI Motor`** (USB ID `045E 02B0`) from the dropdown.
+   * Click **"Replace Driver"** to `WinUSB` as well.
+
+### Step 3: Run the Installer Executable
+1. Download the latest **`KinectCam-Setup-x64.exe`** from the **[Releases](https://github.com/SebastianCaceres/KinectCam/releases)** page.
+2. Run the installer (requires Administrator privileges to register the DirectShow filter).
+3. Follow the setup wizard to complete the installation.
+
+### Step 4: Start Using Your Kinect
+* **Webcam:** Open OBS Studio, Discord, or any webcam test tool and select **`Kinect Cam`** as your video capture device.
+* **Control Panel:** Launch **Kinect Control Panel** from the Start Menu or desktop shortcut to adjust tilt angle, toggle night vision (IR), or configure LEDs.
+
+---
+
+## Manual Installation (Portable)
+
+If you downloaded the portable zip archive (`KinectCam-Portable-x64.zip`) instead of running the installer:
+1. Extract the zip to your desired permanent folder (e.g. `C:\Program Files\KinectCam`).
+2. Right-click **`Reg.cmd`** and select **Run as administrator** to register the DirectShow filter.
+3. Launch **`KinectCamControl.exe`**.
+4. To uninstall later, right-click **`UnReg.cmd`** and select **Run as administrator**.
+
+---
 
 ## Building from Source
 
-Requires Visual Studio 2022 (with C++ Desktop workload) and CMake 3.20+:
+Requires Visual Studio 2022 (with the **Desktop development with C++** workload) and CMake 3.20+:
 
 ```cmd
 cmake --preset x64-release
 cmake --build out/build/x64-release --config Release
 ```
 
-The resulting 64-bit binaries will be located at:
-* `out/build/x64-release/KinectInfraredCam.ax` (Virtual Camera DirectShow Filter)
-* `out/build/x64-release/KinectCamControl.exe` (Control Panel & System Tray Utility)
+Output binaries will be generated in `out/build/x64-release/`:
+* `KinectInfraredCam.ax` (Virtual Camera DirectShow Filter)
+* `KinectCamControl.exe` (Control Panel Utility)
 
-## Kinect Control Panel Utility
-
-`KinectCamControl.exe` provides a lightweight native Windows interface to manage the sensor:
-* **Live Tilt Slider:** Adjust hardware angle (-27° to +27°) with instant response.
-* **Sensor Mode Selector:** Seamlessly switch between **RGB Color Camera** and **Infrared (Night Vision)** without re-registering filters.
-* **LED Control:** Choose between Off, Solid Green, Solid Red, Solid Yellow, or Blinking modes.
-* **Standby Blinking Fix:** Automatically silences the blinking green light when your PC is idle.
-* **System Tray:** Minimizes quietly to the system tray with a quick-access right-click menu.
-
-## Building the Installer (.iss)
-
-If you have [Inno Setup 6](https://jrsoftware.org/isinfo.php) installed, you can compile the standalone setup installer:
-
+To build the installer executable, install [Inno Setup 6](https://jrsoftware.org/isinfo.php) and run:
 ```cmd
 iscc installer.iss
 ```
-*(Or open `installer.iss` in the Inno Setup Compiler GUI and click **Build -> Compile**).*
 
-The compiled installer will be generated at:
-`out/installer/KinectCam-Setup-x64.exe`
-
-## Manual Registration
-
-If running without the installer, you can register or unregister the filter manually from an elevated (Administrator) command prompt:
-
-* **Register:** Run `Reg.cmd`
-* **Unregister:** Run `UnReg.cmd`
+---
 
 ## Acknowledgments & Credits
 
 * **[VisualError](https://github.com/VisualError/KinectCam):** Core credit to VisualError for the original KinectCam revival, CMake structure, and DirectShow filter foundation that made this project possible.
 * **[wildbillcat](https://github.com/wildbillcat/KinectCam) & [roman380](https://github.com/roman380/tmhare.mvps.org-vcam):** Early KinectCam and DirectShow VCam sample implementations.
 * **[OpenKinect](https://openkinect.org):** The `libfreenect` team for the open-source Kinect USB protocol reverse engineering and user-mode drivers.
+
+---
 
 ## License
 
