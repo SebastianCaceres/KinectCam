@@ -50,11 +50,11 @@ Follow these steps to set up your Kinect as a webcam:
 1. Download and run **[Zadig](https://zadig.akeo.ie)** (free, portable, no installation required).
 2. Click the **Options** menu at the top and select **List All Devices**.
 3. In the device dropdown:
-   * Select **`Xbox NUI Camera`** (USB ID `045E 02AE`).
+   * Select **`Xbox NUI Camera`** .
    * Ensure the target driver (right side of the green arrow) is set to **`WinUSB`**.
    * Click **"Replace Driver"** (or *"Install Driver"*).
 4. *(Optional - for motor tilt and LED controls)*:
-   * Select **`Xbox NUI Motor`** (USB ID `045E 02B0`) from the dropdown.
+   * Select **`Xbox NUI Motor`** from the dropdown.
    * Click **"Replace Driver"** to `WinUSB` as well.
 
 ### Step 3: Run the Installer Executable
